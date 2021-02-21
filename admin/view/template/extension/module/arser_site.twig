@@ -1,0 +1,341 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <a href="{{ add }}" data-toggle="tooltip" title="{{ button_add }}" class="btn btn-primary"><i
+                            class="fa fa-plus"></i></a>
+                <button type="button" data-toggle="tooltip" title="{{ button_delete }}" class="btn btn-danger"
+                        onclick="confirm('{{ text_confirm }}') ? $('#form-site').submit() : false;"><i
+                            class="fa fa-trash-o"></i></button>
+                <a href="{{ repair }}" data-toggle="tooltip" title="{{ button_rebuild }}" class="btn btn-primary"><i
+                            class="fa fa-refresh"></i></a>
+                <a href="{{ setting }}" data-toggle="tooltip" title="{{ button_setting }}" class="btn btn-primary"><i
+                            class="fa fa-cog"></i></a>
+                {#<button type="button" id="button-setting" title="{{ button_setting }}" data-loading-text="Загрузка..." class="btn btn-default"><i class="fa fa-cog"></i></button>#}
+            </div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if error_warning %}
+            <div class="alert alert-danger alert-dismissible"><i
+                        class="fa fa-exclamation-circle"></i> {{ error_warning }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        {% endif %}
+        {% if success %}
+            <div class="alert alert-success alert-dismissible"><i class="fa fa-check-circle"></i> {{ success }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-list"></i> {{ text_list }}</h3>
+            </div>
+            <div class="panel-body">
+                <form action="{{ delete }}" method="post" enctype="multipart/form-data" id="form-site">
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover">
+                            <thead>
+                            <tr>
+                                <td style="width: 1px;" class="text-center"><input type="checkbox"
+                                                                                   onclick="$('input[name*=\'selected\']').prop('checked', this.checked);"/>
+                                </td>
+                                <td class="text-left">{% if sort %}
+                                        <a href="{{ sort_name }}" class="{{ order|lower }}">name {{ column_name }}</a>
+                                    {% else %}
+                                        <a href="{{ sort_name }}">name {{ column_name }}</a>
+                                    {% endif %}</td>
+                                <td class="text-center">{% if sort == 'link' %}
+                                        <a href="{{ sort_link }}" class="{{ order|lower }}">link {{ column_link }}</a>
+                                    {% else %}
+                                        <a href="{{ sort_link }}">link {{ column_link }}</a>
+                                    {% endif %}</td>
+
+                                <td class="text-center">{% if sort == 'modulname' %}
+                                        <a href="{{ sort_modulname }}"
+                                           class="{{ order|lower }}">modulname {{ column_modulname }}</a>
+                                    {% else %}
+                                        <a href="{{ sort_modulname }}">modulname {{ column_modulname }}</a>
+                                    {% endif %}</td>
+
+                                <td class="text-center">{% if sort == 'minid' %}
+                                        <a href="{{ sort_minid }}"
+                                           class="{{ order|lower }}">minid {{ column_minid }}</a>
+                                    {% else %}
+                                        <a href="{{ sort_minid }}">minid {{ column_minid }}</a>
+                                    {% endif %}</td>
+
+                                <td class="text-center">{% if sort == 'maxid' %}
+                                        <a href="{{ sort_maxid }}"
+                                           class="{{ order|lower }}">maxid {{ column_maxid }}</a>
+                                    {% else %}
+                                        <a href="{{ sort_maxid }}">maxid {{ column_maxid }}</a>
+                                    {% endif %}</td>
+
+                                <td class="text-center">{% if sort == 'mult' %}
+                                        <a href="{{ sort_mult }}"
+                                           class="{{ order|lower }}">column_mult {{ column_mult }}</a>
+                                    {% else %}
+                                        <a href="{{ sort_mult }}">mult {{ column_mult }}</a>
+                                    {% endif %}</td>
+
+                                <td class="text-center">{% if sort == 'status' %}
+                                        <a href="{{ sort_status }}"
+                                           class="{{ order|lower }}">column_status {{ column_status }}</a>
+                                    {% else %}
+                                        <a href="{{ sort_status }}">status {{ column_status }}</a>
+                                    {% endif %}</td>
+
+                                <td class="text-center">action {{ column_action }}</td>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            {% if sites %}
+                                {% for site in sites %}
+                                    <tr>
+                                        <td class="text-center">{% if site.site_id in selected %}
+                                                <input type="checkbox" name="selected[]" value="{{ site.id }}"
+                                                       checked="checked"/>
+                                            {% else %}
+                                                <input type="checkbox" name="selected[]" value="{{ site.id }}"/>
+                                            {% endif %}</td>
+                                        <td class="text-left">{{ site.name }}</td>
+                                        <td class="text-left">{{ site.link }}</td>
+                                        <td class="text-left">{{ site.modulname }}</td>
+                                        <td class="text-left">{{ site.minid }}</td>
+                                        <td class="text-left">{{ site.maxid }}</td>
+                                        <td class="text-left">{{ site.mult }}</td>
+                                        <td class="text-left">{{ site.status }}                                             <span>({{ site.productcount }})</span>
+                                        </td>
+
+                                        <td class="text-right">
+                                            {# TODO: надо предусмотреть сброс статуса, если парсинг завис #}
+                                            {% if (site.modulname != 'noModule') and (site.status not in ['get', 'parse']) %}
+                                                {% set btnStyle = 'btn-default' %}
+                                                {% if site.status == 'ok' %}
+                                                    {% set btnStyle = 'btn-primary' %}
+                                                {% elseif (site.status in ['new'])  %}
+                                                    {% set btnStyle = 'btn-danger' %}
+                                                {% endif %}
+
+                                                {# выводим кнопки по экспорту#}
+                                                {% if site.productcount > 0 %}
+                                                    <a href="{{ site.export }}" data-toggle="tooltip"
+                                                       title="{{ button_export }}" class="btn {{ btnStyle }}"><i
+                                                                class="fa fa-file-excel-o"></i> Экспорт</a>
+                                                    <a href="{{ site.getimage }}" data-toggle="tooltip"
+                                                       title="{{ button_getimage }}" class="btn {{ btnStyle }} clickmodalimg"><i
+                                                                class="fa fa-file-image-o"></i></a>
+                                                {% endif %}
+
+                                                <a href="{{ site.get }}" data-toggle="tooltip"
+                                                   title="{{ button_get }}" class="btn btn-primary"><i
+                                                            class="fa fa-clock-o"></i> get</a>
+
+                                            {% endif %}
+
+                                            {% if (site.status not in ['get', 'parse']) %}
+                                                <a href="{{ site.edit }}" data-toggle="tooltip" title="{{ button_edit }}"
+                                                   class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                                            {% endif %}
+                                        </td>
+
+
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td class="text-center" colspan="4">{{ text_no_results }}</td>
+                                </tr>
+                            {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+                <div class="row">
+                    <div class="col-sm-6 text-left">{{ pagination }}</div>
+                    <div class="col-sm-6 text-right">{{ results }}</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{#<!-- Modal -->#}
+{#<div id="myModal" class="modal">#}
+    {#<div class="modal-dialog">#}
+        {#<div class="modal-content">#}
+            {#<div class="modal-header">#}
+                {#<button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>#}
+                {#<h4 class="modal-title">Загрузка картинок</h4>#}
+            {#</div>#}
+            {#<div class="modal-body">Тело сообщения</div>#}
+            {#<div class="modal-body">data сообщения</div>#}
+        {#</div>#}
+    {#</div>#}
+{#</div>#}
+
+<div id="myModal" class="modal fade">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <!-- Заголовок модального окна -->
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">Минуточку ...</h4>
+            </div>
+            <!-- Основное содержимое модального окна -->
+            <div class="modal-body">
+                Начинаем ...
+            </div>
+            <!-- Футер модального окна -->
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Закрыть</button>
+                {#<button type="button" class="btn btn-primary">Сохранить изменения</button>#}
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    function updateModalImg(hrf) {
+//            var jqxhr = $.getJSON(hrf)
+        console.log(1);
+
+        var jqxhr = $.ajax(hrf)
+                .success(function (data) {
+                    console.log(data);
+                    console.log(typeof(data));
+                    console.log(2);
+                    r = data.match(/\d+/g);
+                    console.log(3);
+                    if (r) {
+                        cur = r[0];
+                        console.log(4);
+                        all = r[1];
+                        console.log(5);
+                        $('#myModal .modal-body')[0].textContent = data;
+                        console.log(6);
+                        console.log(data);
+                        console.log(cur + "\n" + all);
+                        if (cur != all) {
+                            console.log(7);
+                            setTimeout(updateModalImg, 5000, str);
+                        } else {
+                            alert("Завершение загрузки картинок" + cur + "/" + all);
+                            $('#myModal').modal('hide');
+                        }
+                    } else {
+                        console.log('Плохо - пропускаем!');
+                    }
+                })
+                .error(function (jqxhr, status, errorMsg) {
+                    alert(status + " Ошибка: " + errorMsg)
+                    console.log(status + " Ошибка: " + errorMsg)
+                })
+                .complete(function () {
+//                    alert("Завершение выполнения");
+                });
+    }
+
+
+    $(document).delegate('a.clickmodalimg', 'click', function (e) {
+        e.preventDefault();
+
+        $('#myModal .modal-body')[0].textContent = 'Начинаем загрузку картинок';
+        $('#myModal').modal('show');
+
+        var element = this;
+
+        str = $(element).attr('href');
+        str = str.replace("getimage", "getimagestatus");
+
+        setTimeout(updateModalImg, 3000, str);
+
+        $.ajax({
+                    url: $(element).attr('href'),
+                    type: 'get',
+                    dataType: 'html'
+                })
+                .success(function (data) {
+                    console.log(data);
+//                    alert(data);
+                })
+                .error(function (jqxhr, status, errorMsg) {
+                    alert(status + " Ошибка: " + errorMsg);
+                    console.log(status + " Ошибка: " + errorMsg);
+                })
+                .complete(function () {
+                    alert("Завершение выполнения");
+                });
+
+
+        return;
+
+
+        $.ajax({
+            url: $(element).attr('href'),
+            type: 'get',
+            dataType: 'html',
+            success: function (data) {
+                html = '<div id="modal-inf" class="modal">';
+                html += '  <div class="modal-dialog">';
+                html += '    <div class="modal-content">';
+                html += '      <div class="modal-header">';
+                html += '        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>';
+                html += '        <h4 class="modal-title">' + $(element).text() + '</h4>';
+                html += '      </div>';
+                // html += '      <div class="modal-body">' + $('#content', data).html() + '</div>';
+                html += '      <div class="modal-body">' + data + '</div>';
+                html += '    </div';
+                html += '  </div>';
+                html += '</div>';
+
+                $('body').append(html);
+
+                $('#modal-inf').modal('show');
+            }
+        });
+    });
+
+    $(document).delegate('a.clickmodal', 'click', function (e) {
+        e.preventDefault();
+
+        $('#modal-inf').remove();
+
+        var element = this;
+
+//          alert($(element).attr('data-original-title'));
+//          alert($(element).attr('href'));
+        $.ajax({
+            url: $(element).attr('href'),
+            type: 'get',
+            dataType: 'html',
+            success: function (data) {
+                html = '<div id="modal-inf" class="modal">';
+                html += '  <div class="modal-dialog">';
+                html += '    <div class="modal-content">';
+                html += '      <div class="modal-header">';
+                html += '        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>';
+                html += '        <h4 class="modal-title">' + $(element).text() + '</h4>';
+                html += '      </div>';
+                // html += '      <div class="modal-body">' + $('#content', data).html() + '</div>';
+                html += '      <div class="modal-body">' + data + '</div>';
+                html += '    </div';
+                html += '  </div>';
+                html += '</div>';
+
+                $('body').append(html);
+
+                $('#modal-inf').modal('show');
+            }
+        });
+    });
+</script>
+{{ footer }}

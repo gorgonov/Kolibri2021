@@ -1,0 +1,127 @@
+{{ header }}{{ column_left }}
+<div id="content">
+    <div class="page-header">
+        <div class="container-fluid">
+            <div class="pull-right">
+                <button type="submit" form="form-site" data-toggle="tooltip" title="{{ button_save }}"
+                        class="btn btn-primary"><i class="fa fa-save"></i></button>
+                <a href="{{ cancel }}" data-toggle="tooltip" title="{{ button_cancel }}" class="btn btn-default"><i
+                            class="fa fa-reply"></i></a></div>
+            <h1>{{ heading_title }}</h1>
+            <ul class="breadcrumb">
+                {% for breadcrumb in breadcrumbs %}
+                    <li><a href="{{ breadcrumb.href }}">{{ breadcrumb.text }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    <div class="container-fluid">
+        {% if error_warning %}
+            <div class="alert alert-danger alert-dismissible"><i
+                        class="fa fa-exclamation-circle"></i> {{ error_warning }}
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+            </div>
+        {% endif %}
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h3 class="panel-title"><i class="fa fa-pencil"></i> {{ text_form }}</h3>
+            </div>
+            <div class="panel-body">
+                <form action="{{ action }}" method="post" enctype="multipart/form-data" id="form-site"
+                      class="form-horizontal">
+                    <div class="form-group required">
+                        <label class="col-sm-2 control-label" for="input-name">{{ entry_name }}</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="name" value="{{ name }}" placeholder="{{ entry_name }}"
+                                   id="input-name" class="form-control"/>
+                            {% if error_name %}
+                                <div class="text-danger">{{ error_name }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label class="col-sm-2 control-label" for="input-link">{{ entry_link }}</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="link" value="{{ link }}" placeholder="{{ entry_link }}"
+                                   id="input-link" class="form-control"/>
+                            {% if error_link %}
+                                <div class="text-danger">{{ error_link }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label class="col-sm-2 control-label" for="input-modulname">{{ entry_modulname }}</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="modulname" value="{{ modulname }}"
+                                   placeholder="{{ entry_modulname }}"
+                                   id="input-modulname" class="form-control"/>
+                            {% if error_modulname %}
+                                <div class="text-danger">{{ error_modulname }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label class="col-sm-2 control-label" for="input-minid">{{ entry_minid }}</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="minid" value="{{ minid }}" placeholder="{{ entry_minid }}"
+                                   id="input-minid" class="form-control"/>
+                            {% if error_minid %}
+                                <div class="text-danger">{{ error_minid }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-maxid">{{ entry_maxid }}</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="maxid" value="{{ maxid }}" placeholder="{{ entry_maxid }}"
+                                   id="input-maxid" class="form-control"/>
+                            {% if error_maxid %}
+                                <div class="text-danger">{{ error_maxid }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group required">
+                        <label class="col-sm-2 control-label" for="input-mult">{{ entry_mult }}</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="mult" value="{{ mult }}" placeholder="{{ entry_mult }}"
+                                   id="input-mult" class="form-control"/>
+                            {% if error_mult %}
+                                <div class="text-danger">{{ error_mult }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-2 control-label" for="input-status">{{ entry_status }}</label>
+                        <div class="col-sm-10">
+                            <input type="text" name="status" value="{{ status }}" placeholder="{{ entry_status }}"
+                                   id="input-status" class="form-control"/>
+                            {% if error_status %}
+                                <div class="text-danger">{{ error_status }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link href="view/javascript/codemirror/lib/codemirror.css" rel="stylesheet"/>
+<link href="view/javascript/codemirror/theme/monokai.css" rel="stylesheet"/>
+<script type="text/javascript" src="view/javascript/codemirror/lib/codemirror.js"></script>
+<script type="text/javascript" src="view/javascript/codemirror/lib/xml.js"></script>
+<script type="text/javascript" src="view/javascript/codemirror/lib/formatting.js"></script>
+
+<script type="text/javascript" src="view/javascript/summernote/summernote.js"></script>
+<link href="view/javascript/summernote/summernote.css" rel="stylesheet"/>
+<script type="text/javascript" src="view/javascript/summernote/summernote-image-attributes.js"></script>
+<script type="text/javascript" src="view/javascript/summernote/opencart.js"></script>
+
+{{ footer }}

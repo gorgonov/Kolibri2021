@@ -1,0 +1,114 @@
+<div id="content">
+    <form action="{{ action }}" method="post" enctype="multipart/form-data" id="import" class="form-horizontal">
+
+        1) Загрузите файл с расширением <strong>.XLSX</strong>.
+        После загрузки он будет переименован в <strong> {{ modulname }}Links.XLSX</strong>
+        <p>2) Установите флаг загрузки
+        <p><strong>Примечание:</strong><br>
+            Структура файла импорта должна соответствовать требованиям модуля  <strong> export_import  </strong>
+        <p><strong>ВНИМАНИЕ:</strong><br>
+            Запущенный парсинг остановить  <strong>нельзя!!!</strong>
+
+        <hr>
+
+        <input type="file" class="btn btn-primary" style="display: inline-block;">
+        <a id="btn_upload" class="submit button btn btn-primary">Загрузить</a>
+        <a id="btn_getstatus" class="btn btn-primary">Установить флаг загрузки</a>
+        <a onclick="location.reload();" class="btn btn-primary">Ок</a>
+        <div class="ajax-respond"></div>
+
+        {#<a id="btn_upload" class="btn btn-primary">Загрузить файл</a>#}
+    </form>
+</div>
+
+<script type="text/javascript"><!--
+
+    // Переменная куда будут располагаться данные файлов
+
+    var files;
+
+    // Вешаем функцию на событие
+    // Получим данные файлов и добавим их в переменную
+    $('input[type=file]').change(function(){
+        files = this.files;
+    });
+
+    $('#btn_getstatus').on('click', function() {
+        $.ajax({
+            url: 'index.php?route=extension/module/arser_site/setGetstatus&id={{ id }}&user_token={{ user_token }}',
+            dataType: 'json',
+            beforeSend: function() {
+                $('#btn_getstatus').button('loading');
+            },
+            complete: function() {
+                $('#btn_getstatus').button({
+                    label: "Заказать цветы",
+                    disabled: true
+                });
+            },
+            success: function(data) {
+                alert(data['message']);
+                $('#btn_getstatus').text(data['message']).removeClass( 'btn-primary' ).addClass('.btn-info');
+                $('#btn_getstatus').attr('disabled','disabled'); //TODO: почему-то не работает
+                $('#btn_getstatus').hide();
+                location.reload();
+            },
+            error: function(xhr, ajaxOptions, thrownError) {
+                alert(thrownError + "\r\n" + xhr.statusText + "\r\n" + xhr.responseText);
+            }
+        });
+    });
+
+    // Вешаем функцию ан событие click и отправляем AJAX запрос с данными файлов
+
+    $('.submit.button').click(function( event ){
+        event.stopPropagation(); // Остановка происходящего
+        event.preventDefault();  // Полная остановка происходящего
+
+        // Создадим данные формы и добавим в них данные файлов из files
+
+        var data = new FormData();
+        $.each( files, function( key, value ){
+            data.append( key, value );
+        });
+
+        // Отправляем запрос
+
+        $.ajax({
+            url: './submit.php?uploadfiles&fname={{ modulname }}Links.XLSX',
+            type: 'POST',
+            data: data,
+            cache: false,
+            dataType: 'json',
+            processData: false, // Не обрабатываем файлы (Don't process the files)
+            contentType: false, // Так jQuery скажет серверу что это строковой запрос
+            success: function( respond, textStatus, jqXHR ){
+
+                // Если все ОК
+
+                if( typeof respond.error === 'undefined' ){
+                    // Файлы успешно загружены, делаем что нибудь здесь
+
+                    // выведем пути к загруженным файлам в блок '.ajax-respond'
+                    alert('Файл загружен');
+                    $('.submit.button').text('Файл {{ modulname }}Links.XLSX загружен');
+//                    $('#btn_getstatus').text(data['message']).removeClass( 'btn-primary' ).addClass('.btn-info');
+//                    $('#btn_getstatus').attr('disabled','disabled'); //TODO: почему-то не работает
+//                    $('#btn_getstatus').hide();
+
+                    var files_path = respond.files;
+                    var html = '';
+                    $.each( files_path, function( key, val ){ html += val +'<br>'; } )
+                    // $('.ajax-respond').html( html ); // вывод имен файлов
+                }
+                else{
+                    console.log('ОШИБКИ ОТВЕТА сервера: ' + respond.error );
+                }
+            },
+            error: function( jqXHR, textStatus, errorThrown ){
+                console.log('ОШИБКИ AJAX запроса: ' + textStatus );
+            }
+        });
+
+    });
+    //--></script>
